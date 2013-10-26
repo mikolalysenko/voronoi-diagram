@@ -1,6 +1,7 @@
 "use strict"
 
 var incrementalDelaunay = require("incremental-delaunay")
+var inSphere = require("robust-in-sphere")
 var circumcenter = require("circumcenter")
 
 module.exports = voronoiDiagram
@@ -27,6 +28,9 @@ function voronoiDiagram(points) {
   var dualPoints = [ ]
 outer_loop:
   for(var cur=triangulation.next; cur!==triangulation; cur=cur.next) {
+    if(typeof cur.index === "number") {
+      continue
+    }
     var verts = cur.vertices
     var p = new Array(verts.length)
     for(var i=0; i<verts.length; ++i) {
@@ -38,6 +42,30 @@ outer_loop:
     }
     cur.index = dualPoints.length
     dualPoints.push(circumcenter(p))
+
+    p.push(p[0])
+
+    //Find all cocircular sites incident to cur
+i_loop:
+    for(var i=0; i<verts.length; ++i) {
+      var d = triangulation._dual[verts[i]]
+      for(var j=0; j<d.length; ++j) {
+        if(typeof d[j].index === "number") {
+          continue
+        }
+        //Check if d[j] and c have a common
+        var other = d[j]
+        for(var k=0; k<other.vertices.length; ++k) {
+          if(cur.vertices.indexOf(other.vertices[k]) < 0) {
+            p[p.length-1] = triangulation.points[other.vertices[k]]
+            if(inSphere(p) <= 0) {
+              other.index = cur.index
+            }
+            continue i_loop
+          }
+        }
+      }
+    }
   }
 
   //Build dual cells
