@@ -1,0 +1,36 @@
+{
+  "name": "voronoi-diagram",
+  "version": "0.0.0",
+  "description": "Constructs a Voronoi diagram for a collection of points",
+  "main": "voronoi.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "circumcenter": "~0.0.0",
+    "incremental-delaunay": "~0.0.1"
+  },
+  "devDependencies": {
+    "tape": "~2.1.0",
+    "tap": "~0.4.4"
+  },
+  "scripts": {
+    "test": "tap test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mikolalysenko/voronoi-diagram.git"
+  },
+  "keywords": [
+    "voronoi",
+    "diagram",
+    "point",
+    "delaunay",
+    "incremental"
+  ],
+  "author": "Mikola Lysenko",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mikolalysenko/voronoi-diagram/issues"
+  }
+}
