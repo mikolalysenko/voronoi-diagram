@@ -7,11 +7,11 @@ Construct a voronoi diagram for a collection of points
 ```javascript
 var voronoi = require("voronoi-diagram")
 
-var points = [[
+var points = [
   [1, 0],
   [0, 1],
   [0, 0]
-]]
+]
 
 console.log(voronoi(points))
 ```
