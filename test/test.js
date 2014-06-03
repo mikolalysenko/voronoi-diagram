@@ -14,5 +14,15 @@ require("tape")(function(t) {
 
   console.log(voronoi(points))
 
+  console.log(voronoi([
+    [0],
+    [1],
+    [2],
+    [3],
+    [4]
+    ]))
+
+  console.log(voronoi([[0]]))
+
   t.end()
 })

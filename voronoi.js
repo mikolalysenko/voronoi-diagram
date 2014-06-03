@@ -11,6 +11,38 @@ function compareInt(a, b) {
 }
 
 function voronoi1D(points) {
+  if(points.length === 1) {
+    return {
+      cells: [ [-1] ],
+      positions: []
+    }
+  }
+  var tagged = points.map(function(p, i) {
+    return [ p[0], i ]
+  })
+  tagged.sort(function(a,b) {
+    return a-b
+  })
+  var cells = new Array(points.length)
+  for(var i=0; i<cells.length; ++i) {
+    cells[i] = [-1,-1]
+  }
+  var dualPoints = []
+  for(var j=1; j<tagged.length; ++j) {
+    var a = tagged[j-1]
+    var b = tagged[j]
+    var center = 0.5*(a[0]+b[0])
+    var n = dualPoints.length
+    dualPoints.push([center])
+    cells[a[1]][1] = n
+    cells[b[1]][0] = n
+  }
+  cells[tagged[0][1]][1] = 0
+  cells[tagged[tagged.length-1][1]][0] = dualPoints.length-1
+  return {
+    cells: cells,
+    positions: dualPoints
+  }
 }
 
 function voronoi(points) {
@@ -57,7 +89,6 @@ function voronoi(points) {
     cellIndex[i] = dualPoints.length
     dualPoints.push(circumcenter(tuple))
   }
-
 
   //Build dual cells
   var dualCells
