@@ -1,6 +1,6 @@
 {
   "name": "voronoi-diagram",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Constructs a Voronoi diagram for a collection of points",
   "main": "voronoi.js",
   "directories": {
