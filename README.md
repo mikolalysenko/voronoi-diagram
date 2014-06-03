@@ -4,8 +4,8 @@ Construct a voronoi diagram for a collection of points.  Works in any dimension 
 
 <img src="voronoi3d.png">
 
-* 2D Voronoi diagram demo
-* 3D Voronoi diagram demo
+* [2D Voronoi diagram demo](http://mikolalysenko.github.io/voronoi-diagram/2d.html)
+* [3D Voronoi diagram demo](http://mikolalysenko.github.io/voronoi-diagram/3d.html)
 
 # Example
 
