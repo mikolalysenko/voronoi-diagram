@@ -1,86 +1,98 @@
 "use strict"
 
-var incrementalDelaunay = require("incremental-delaunay")
+var triangulate = require("delaunay-triangulate")
 var circumcenter = require("circumcenter")
+var uniq = require("uniq")
 
-module.exports = voronoiDiagram
+module.exports = voronoi
 
-function voronoiDiagram(points) {
-  if(points.length === 0) {
-    return { cells: [], points: [] }
+function compareInt(a, b) {
+  return a - b
+}
+
+function voronoi1D(points) {
+}
+
+function voronoi(points) {
+  var n = points.length
+  if(n === 0) {
+    return { cells: [], positions: [] }
+  }
+  var d = points[0].length
+  if(d < 1) {
+    return { cells: [], positions: [] }
+  }
+  if(d === 1) {
+    return voronoi1D(points)
   }
 
-  //First triangulate the points
-  var dimension = points[0].length
-  var triangulation = incrementalDelaunay(dimension)
-  for(var i=0; i<points.length; ++i) {
-    triangulation.insert(points[i])
-  }
+  //First delaunay triangulate all points including point at infinity
+  var cells = triangulate(points, true)
 
-  //Create point at infinity
-  var pointAtInfinity = new Array(dimension)
-  for(var i=0; i<dimension; ++i) {
-    pointAtInfinity[i] = Infinity
+  //Construct dual points
+  var stars = new Array(n)
+  for(var i=0; i<n; ++i) {
+    stars[i] = []
   }
-
-  //Build point index
-  var dualPoints = [ ]
-outer_loop:
-  for(var cur=triangulation.next; cur!==triangulation; cur=cur.next) {
-    if(typeof cur.index === "number") {
+  var nc = cells.length
+  var tuple = new Array(d+1)
+  var cellIndex = new Array(nc)
+  var dualPoints = []
+  for(var i=0; i<nc; ++i) {
+    var verts = cells[i]
+    var skip = false
+    for(var j=0; j<=d; ++j) {
+      var v = verts[j]
+      if(v < 0) {
+        cellIndex[i] = -1
+        skip = true
+      } else {
+        stars[v].push(i)
+        tuple[j] = points[v]
+      }
+    }
+    if(skip) {
       continue
     }
-    var verts = cur.vertices
-    var p = new Array(verts.length)
-    for(var i=0; i<verts.length; ++i) {
-      if(verts[i] <= dimension) {
-        cur.index = -1
-        continue outer_loop
-      }
-      p[i] = triangulation.points[verts[i]]
-    }
-    cur.index = dualPoints.length
-    dualPoints.push(circumcenter(p))
-
-    p.push(p[0])
+    cellIndex[i] = dualPoints.length
+    dualPoints.push(circumcenter(tuple))
   }
 
+
   //Build dual cells
-  var dualCells = new Array(points.length)
-  for(var i=0; i<points.length; ++i) {
-    var v = i + dimension + 1
-    var d = triangulation._dual[v]
-    if(dimension === 2) {
-      var c = [ d[0].index ]
-      var s = d[0].vertices[(d[0].vertices.indexOf(v) + 1)%3]
-      for(var j=1; j<d.length; ++j) {
-        for(var k=1; k<d.length; ++k) {
-          var x = (d[k].vertices.indexOf(v)+2)%3
-          if(d[k].vertices[x] === s) {
-            if(d[k].index !== -1 || (c.length > 0 && c[c.length-1] !== d[k].index)) {
-              c.push(d[k].index)
-            }
-            s = d[k].vertices[(x+2)%3]
+  var dualCells
+  if(d === 2) {
+    dualCells = new Array(n)
+    for(var i=0; i<n; ++i) {
+      var dual = stars[i]
+      var c = [ cellIndex[dual[0]] ]
+      var s = cells[dual[0]][(cells[dual[0]].indexOf(i)+1) % 3]
+      for(var j=1; j<dual.length; ++j) {
+        for(var k=1; k<dual.length; ++k) {
+          var x = (cells[dual[k]].indexOf(i) + 2) % 3
+          if(cells[dual[k]][x] === s) {
+            c.push(cellIndex[dual[k]])
+            s = cells[dual[k]][(x+2)%3]
             break
           }
         }
       }
-      if(c[0] === -1 && c[c.length - 1] === -1 && c.length > 0) {
-        c.pop()
-      }
-      dualCells[i] = c
-    } else {
-      var c = new Array(d.length)
-      for(var j=0; j<d.length; ++j) {
-        c[j] = d.index
-      }
       dualCells[i] = c
     }
+  } else {
+    for(var i=0; i<n; ++i) {
+      var s = stars[i]
+      for(var j=0; j<s.length; ++j) {
+        s[j] = cellIndex[s[j]]
+      }
+      uniq(s, compareInt)
+    }
+    dualCells = stars
   }
 
   //Return the resulting cells
   return {
     cells: dualCells,
-    points: dualPoints
+    positions: dualPoints
   }
 }
