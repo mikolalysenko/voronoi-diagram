@@ -80,7 +80,8 @@ shell.on("gl-init", function() {
   mesh = createSimplicialComplex(gl, {
     cells: cells,
     positions: points,
-    vertexColors: colors
+    vertexColors: colors,
+    useFacetNormals: true
   })
 
   axes = createAxes(shell.gl, {

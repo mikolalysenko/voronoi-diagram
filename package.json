@@ -20,7 +20,8 @@
     "game-shell-orbit-camera": "^1.0.0",
     "incremental-convex-hull": "^1.0.0",
     "gl-simplicial-complex": "^1.0.0",
-    "gl-axes": "^2.2.3"
+    "gl-axes": "^2.2.3",
+    "simplicial-complex": "^1.0.0"
   },
   "scripts": {
     "test": "tape test/*.js"
